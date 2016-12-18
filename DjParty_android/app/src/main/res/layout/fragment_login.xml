@@ -14,25 +14,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:text="Enter party name"
             android:ems="10"
-            android:id="@+id/party_name"/>
+            android:id="@+id/party_name"
+            android:hint="Enter party name"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:text="Enter party password"
             android:ems="10"
-            android:id="@+id/party_pass"/>
+            android:id="@+id/party_pass"
+            android:hint="Enter party password"/>
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:text="Username"
             android:ems="10"
-            android:id="@+id/guest_name"/>
+            android:id="@+id/guest_name"
+            android:hint="Enter username"/>
 
         <Button
             android:text="Create or join party!"

@@ -37,6 +37,9 @@ dependencies {
     testCompile 'com.android.support:support-v4:24.2.1'
     compile 'junit:junit:4.12'
 
+    //Volley
+    compile 'com.mcxiaoke.volley:library:1.0.19'
+
     //For Firebase
 //    compile 'com.google.android.gms:play-services:9.0.0'
     compile 'com.google.firebase:firebase-core:10.0.1'

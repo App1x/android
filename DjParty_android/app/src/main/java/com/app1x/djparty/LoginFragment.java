@@ -11,6 +11,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.MutableData;
@@ -88,58 +94,60 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             case R.id.join_button:
                 if (MainActivity.mParties!=null) {
                     EditText partyNameField = (EditText) view.findViewById(R.id.party_name);
-                    String partyName = partyNameField.getText().toString();
+                    final String partyName = partyNameField.getText().toString();
 
                     EditText partyPassField = (EditText) view.findViewById(R.id.party_pass);
-                    String partyPass = partyPassField.getText().toString();
+                    final String partyPass = partyPassField.getText().toString();
 
                     EditText guestNameField = (EditText) view.findViewById(R.id.guest_name);
-                    String guestName = guestNameField.getText().toString();
+                    final String guestName = guestNameField.getText().toString();
 
-                    Log.i("run txn", TAG);
-                    MainActivity.mParties.child(partyName).runTransaction(new Transaction.Handler
-                            () {
-                        @Override
-                        public Transaction.Result doTransaction(MutableData mutableData) {
-                            Object party= mutableData.getValue();
-                            if (party!=null) {
-                                Log.i(TAG, party.toString());
-                                Log.i(TAG, mutableData.getClass().toString());
-//                                if (party["password"]!=partyPass)
-                            } else {
-//                                Object party= {"guestList": {}, "password": partyPass};  //create
-                                // new party
-                                MainActivity.mAmPartyHost= true;
-                            }
+                    mListener.onJoinPressed(partyName, partyPass, guestName);
 
-//                            if (mutableData.)
-//                            Post p = mutableData.getValue(Post.class);
-//                            if (p == null) {
-//                                return Transaction.success(mutableData);
-//                            }
-//
-//                            if (p.stars.containsKey(getUid())) {
-//                                // Unstar the post and remove self from stars
-//                                p.starCount = p.starCount - 1;
-//                                p.stars.remove(getUid());
+//                    Log.i("run txn", TAG);
+//                    MainActivity.mParties.child(partyName).runTransaction(new Transaction.Handler
+//                            () {
+//                        @Override
+//                        public Transaction.Result doTransaction(MutableData mutableData) {
+//                            Object party= mutableData.getValue();
+//                            if (party!=null) {
+//                                Log.i(TAG, party.toString());
+//                                Log.i(TAG, mutableData.getClass().toString());
+////                                if (party["password"]!=partyPass)
 //                            } else {
-//                                // Star the post and add self to stars
-//                                p.starCount = p.starCount + 1;
-//                                p.stars.put(getUid(), true);
+////                                Object party= {"guestList": {}, "password": partyPass};  //create
+//                                // new party
+//                                MainActivity.mAmPartyHost= true;
 //                            }
 //
-//                            // Set value and report transaction success
-//                            mutableData.setValue(p);
-                            return Transaction.success(mutableData);
-                        }
-
-                        @Override
-                        public void onComplete(DatabaseError databaseError, boolean b,
-                                               DataSnapshot dataSnapshot) {
-                            // Transaction completed
-                            Log.d(TAG, "postTransaction:onComplete:" + databaseError);
-                        }
-                    });
+////                            if (mutableData.)
+////                            Post p = mutableData.getValue(Post.class);
+////                            if (p == null) {
+////                                return Transaction.success(mutableData);
+////                            }
+////
+////                            if (p.stars.containsKey(getUid())) {
+////                                // Unstar the post and remove self from stars
+////                                p.starCount = p.starCount - 1;
+////                                p.stars.remove(getUid());
+////                            } else {
+////                                // Star the post and add self to stars
+////                                p.starCount = p.starCount + 1;
+////                                p.stars.put(getUid(), true);
+////                            }
+////
+////                            // Set value and report transaction success
+////                            mutableData.setValue(p);
+//                            return Transaction.success(mutableData);
+//                        }
+//
+//                        @Override
+//                        public void onComplete(DatabaseError databaseError, boolean b,
+//                                               DataSnapshot dataSnapshot) {
+//                            // Transaction completed
+//                            Log.d(TAG, "postTransaction:onComplete:" + databaseError);
+//                        }
+//                    });
                 }
 
                 break;
@@ -182,7 +190,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(View v);
+        void onJoinPressed(String partyName, String partyPass, String guestName);
     }
 }
