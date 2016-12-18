@@ -83,12 +83,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        Log.i("button clicked", TAG);
         //do what you want to do when button is clicked
         switch (v.getId()) {
             case R.id.join_button:
-                Log.i("join clicked", TAG);
-                if (MainActivity.mParty!=null) {
+                if (MainActivity.mParties!=null) {
                     EditText partyNameField = (EditText) view.findViewById(R.id.party_name);
                     String partyName = partyNameField.getText().toString();
 
@@ -99,10 +97,22 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     String guestName = guestNameField.getText().toString();
 
                     Log.i("run txn", TAG);
-                    MainActivity.mParty.runTransaction(new Transaction.Handler() {
+                    MainActivity.mParties.child(partyName).runTransaction(new Transaction.Handler
+                            () {
                         @Override
                         public Transaction.Result doTransaction(MutableData mutableData) {
-                            Log.d(mutableData.toString(), TAG);
+                            Object party= mutableData.getValue();
+                            if (party!=null) {
+                                Log.i(TAG, party.toString());
+                                Log.i(TAG, mutableData.getClass().toString());
+//                                if (party["password"]!=partyPass)
+                            } else {
+//                                Object party= {"guestList": {}, "password": partyPass};  //create
+                                // new party
+                                MainActivity.mAmPartyHost= true;
+                            }
+
+//                            if (mutableData.)
 //                            Post p = mutableData.getValue(Post.class);
 //                            if (p == null) {
 //                                return Transaction.success(mutableData);
