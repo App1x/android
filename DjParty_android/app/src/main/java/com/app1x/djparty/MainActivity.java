@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -68,8 +69,8 @@ public class MainActivity extends FragmentActivity implements
     public static boolean mAmSongOwner= false;
     public static boolean mNowPlaying;
 
-    //RequestQueue
-    RequestQueue mQueue;
+//    //RequestQueue
+//    RequestQueue mQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,8 +127,8 @@ public class MainActivity extends FragmentActivity implements
                     }
                 });
 
-        //Instantiate the RequestQueue.
-        mQueue= Volley.newRequestQueue(this);
+//        //Instantiate the RequestQueue.
+//        mQueue= Volley.newRequestQueue(this);
 
         //load login fragment
         if (findViewById(R.id.fragment_container) != null) {
@@ -263,26 +264,31 @@ public class MainActivity extends FragmentActivity implements
         String url= base_url+join_api_ext+"?partyName="+partyName+"&partyPass" +
                 "="+partyPass+"&guestName="+guestName;
         Log.i(TAG, url);
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-//                                    // Display the first 500 characters of the response string.
-//                                    mTextView.setText("Response is: "+ response.substring(0,500));
-                        Log.i(TAG, "response");
-                        Log.i(TAG, response);
 
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-//                                    mTextView.setText("That didn't work!");
-                Log.i(TAG, error.toString());
-            }
-        });
-        // Add the request to the RequestQueue.
-        mQueue.add(stringRequest);
+        WebView webView= (WebView) findViewById(R.id.webview2);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadUrl(url);
+
+//        // Request a string response from the provided URL.
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+////                                    // Display the first 500 characters of the response string.
+////                                    mTextView.setText("Response is: "+ response.substring(0,500));
+//                        Log.i(TAG, "response");
+//                        Log.i(TAG, response);
+//
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+////                                    mTextView.setText("That didn't work!");
+//                Log.i(TAG, error.toString());
+//            }
+//        });
+//        // Add the request to the RequestQueue.
+//        mQueue.add(stringRequest);
 
         mParty= mParties.child(partyName);
         mGuestList= mParty.child("guestList");
