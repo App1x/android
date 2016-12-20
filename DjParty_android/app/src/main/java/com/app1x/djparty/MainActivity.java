@@ -23,8 +23,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -257,17 +261,55 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onJoinPressed(String partyName, String partyPass, String guestName) {
+    public void onJoinPressed(String partyName, final String partyPass, final String guestName) {
 
-        String base_url= getString(R.string.djparty_website);
-        String join_api_ext= getString(R.string.join_api_ext);
-        String url= base_url+join_api_ext+"?partyName="+partyName+"&partyPass" +
-                "="+partyPass+"&guestName="+guestName;
-        Log.i(TAG, url);
+        Log.i("run txn", TAG);
+        MainActivity.mParties.child(partyName).runTransaction(new Transaction.Handler
+                () {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                Party party= mutableData.getValue(Party.class);
+                if (party!=null) {
+                    Log.i(TAG, "Party Not Null");
+                    Log.i(TAG, party.toString());
+                    if (party.password!=partyPass) {
+                        Log.i(TAG, "Wrong Password");
+                        return Transaction.success(mutableData);
+                    }
+                    mAmPartyHost= party.host==guestName;
+                } else {
+                    Log.i(TAG, "Party Null");
+                    party= new Party(partyPass, guestName);
+                    mAmPartyHost= true;
+                }
 
-        WebView webView= (WebView) findViewById(R.id.webview2);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.loadUrl(url);
+                if (party.guestList.get(guestName)==null) {
+                    party.guestList.insertNode(new Guest(guestName), party.guestList.length());
+                }
+                Log.i(TAG, party.toString());
+
+                // Set value and report transaction success
+                mutableData.setValue(party);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b,
+                                   DataSnapshot dataSnapshot) {
+                // Transaction completed
+                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
+            }
+        });
+
+//        String base_url= getString(R.string.djparty_website);
+//        String join_api_ext= getString(R.string.join_api_ext);
+//        String url= base_url+join_api_ext+"?partyName="+partyName+"&partyPass" +
+//                "="+partyPass+"&guestName="+guestName;
+//        Log.i(TAG, url);
+//
+//        WebView webView= (WebView) findViewById(R.id.webview);
+//        webView.getSettings().setJavaScriptEnabled(true);
+//        webView.loadUrl(url);
 
 //        // Request a string response from the provided URL.
 //        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -290,11 +332,11 @@ public class MainActivity extends FragmentActivity implements
 //        // Add the request to the RequestQueue.
 //        mQueue.add(stringRequest);
 
-        mParty= mParties.child(partyName);
-        mGuestList= mParty.child("guestList");
-        mMyName= guestName;
-        mMyStuff= mGuestList.child(mMyName);
-        mMyPlaylist= mMyStuff.child("playlist");
-        Log.i(TAG, mMyPlaylist.toString());
+//        mParty= mParties.child(partyName);
+//        mGuestList= mParty.child("guestList");
+//        mMyName= guestName;
+//        mMyStuff= mGuestList.child(mMyName);
+//        mMyPlaylist= mMyStuff.child("playlist");
+//        Log.i(TAG, mMyPlaylist.toString());
     }
 }

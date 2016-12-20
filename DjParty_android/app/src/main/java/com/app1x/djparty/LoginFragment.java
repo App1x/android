@@ -98,6 +98,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
                     EditText partyPassField = (EditText) view.findViewById(R.id.party_pass);
                     final String partyPass = partyPassField.getText().toString();
+                    Log.i(TAG, "pass: "+partyPass);
 
                     EditText guestNameField = (EditText) view.findViewById(R.id.guest_name);
                     final String guestName = guestNameField.getText().toString();
