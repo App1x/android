@@ -28,7 +28,7 @@ import static android.content.ContentValues.TAG;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
+ * {@link LoginFragment.OnLoginFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link LoginFragment#newInstance} factory method to
  * create an instance of this fragment.
@@ -43,7 +43,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private OnLoginFragmentInteractionListener mListener;
 
     View view;
 
@@ -93,6 +93,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.join_button:
                 if (MainActivity.mParties!=null) {
+                    setButtonEnabled(false);
+
                     EditText partyNameField = (EditText) view.findViewById(R.id.party_name);
                     final String partyName = partyNameField.getText().toString();
 
@@ -153,7 +155,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
                 break;
         }
-        mListener.onFragmentInteraction(v);
+//        mListener.onFragmentInteraction(v);
 
     }
 //    // TODO: Rename method, update argument and hook method into UI event
@@ -166,8 +168,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnLoginFragmentInteractionListener) {
+            mListener = (OnLoginFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -188,6 +190,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         EditText editText= (EditText) view.findViewById(id);
         editText.setHint(newHint);
     }
+    public void setButtonEnabled(boolean enabled) {
+        Button button= (Button) view.findViewById(R.id.join_button);
+        button.setEnabled(enabled);
+    }
 
     /**
      * This interface must be implemented by activities that contain this
@@ -199,8 +205,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(View v);
+    public interface OnLoginFragmentInteractionListener {
+//        void onLoginFragmentInteraction(View v);
         void onJoinPressed(String partyName, String partyPass, String guestName);
     }
 }

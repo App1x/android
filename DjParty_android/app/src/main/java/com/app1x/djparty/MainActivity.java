@@ -28,8 +28,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -41,9 +43,14 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainActivity extends FragmentActivity implements
         SpotifyPlayer.NotificationCallback, ConnectionStateCallback,
-        LoginFragment.OnFragmentInteractionListener
+        LoginFragment.OnLoginFragmentInteractionListener,
+        PlayerFragment.OnPlayerFragmentInteractionListener
 {
 
     private static final String TAG= "MainActivityTag";
@@ -79,6 +86,7 @@ public class MainActivity extends FragmentActivity implements
 
     //Fragments
     LoginFragment loginFragment;
+    PlayerFragment playerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -255,13 +263,21 @@ public class MainActivity extends FragmentActivity implements
         Log.d("MainActivity", "Received connection message: " + message);
     }
 
-    @Override
-    public void onFragmentInteraction(View v) {
-        switch (v.getId()) {
-            case R.id.join_button:
-//                String partyName= findViewById(R.id.)
-                break;
-        }
+//    @Override
+//    public void onFragmentInteraction(View v) {
+//        switch (v.getId()) {
+//            case R.id.join_button:
+////                String partyName= findViewById(R.id.)
+//                break;
+//        }
+//    }
+
+    //TODO: show play fragment
+    public void showPlayPage() {
+        playerFragment = new PlayerFragment();
+        playerFragment.setArguments(getIntent().getExtras());
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, playerFragment).commit();
     }
 
     @Override
@@ -308,54 +324,112 @@ public class MainActivity extends FragmentActivity implements
                                    DataSnapshot dataSnapshot) {
                 // Transaction completed
                 if (gotIn) {
+                    mMyName= guestName;
+                    mParty= mParties.child(partyName);
+                    mGuestList= mParty.child("guestList");
+                    mMyStuff= mGuestList.child(guestName);
+                    mMyPlaylist= mMyStuff.child("playlist");
+
+                    //TODO: set call am_not_host if not host
+
+                    //TODO: set myPlaylist listener
+
+                    //Listen to guest or playlist changes
+                    mGuestList.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            GenericTypeIndicator<Map<String, Node>> t = new
+                                    GenericTypeIndicator<Map<String, Node>>() {};
+                            Map<String, Node> guestList = dataSnapshot.getValue(t);
+//                            Log.i(TAG, guestList.toString());
+                            Guest headGuest= (Guest) Guest.findHead(guestList);
+
+                            //populate next up
+                            Track nextUpTrack= null;
+                            String nextInLine;
+                            ArrayList<String> listHtml= new ArrayList<String>();
+                            Guest currentGuest= headGuest;
+                            while (currentGuest!=null) {
+                                Track nextTrack= (Track) Node.findHead(currentGuest.playlist);
+                                if (nextTrack!=null) {
+                                    if (listHtml.size()==0) {
+                                        nextUpTrack= nextTrack;
+                                        nextInLine= currentGuest.id;
+
+                                        Map<String, Object> updates= new HashMap<>();
+                                        updates.put("nextUp", nextTrack.id);
+                                        updates.put("nextInLine", nextInLine);
+                                        mParty.updateChildren(updates);
+//                                                , new
+//                                                DatabaseReference.CompletionListener() {
+//                                                    @Override
+//                                                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+//                                                        //TODO: or spotify ended
+//                                                        if (mNoSongPlaying) {
+//                                                            mNoSongPlaying= false;
+//
+//                                                            final Node currentlyPlaying;
+//                                                            mParty.addListenerForSingleValueEvent
+//                                                                    (new ValueEventListener() {
+//                                                                        @Override
+//                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                                                                            currentlyPlaying=
+//                                                                        }
+//
+//                                                                        @Override
+//                                                                        public void onCancelled(DatabaseError databaseError) {
+//
+//                                                                        }
+//                                                                    });
+//                                                        }
+//                                                    }
+//                                                });
+                                    }
+                                    //TODO: push html to listHtml
+                                }
+                                String nextGuestName= currentGuest.next;
+                                currentGuest= (Guest) guestList.get(nextGuestName);
+                            }
+                            if (nextUpTrack==null) {
+                                mParty.child("nextUp").setValue(null);
+                            }
+                            //TODO: load next up list view
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                            // Failed to read value
+                            Log.w(TAG, "Failed to read value.", error.toException());
+                        }
+                    });
+
+                    //listen for next up change (non host)
+                    mParty.child("currentlyPlaying").addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            //TODO: load currently playing
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    //TODO: listen for host
+
+                    showPlayPage();
 
                 } else {
                     loginFragment.setEditTextHint(R.id.party_name, "Party already exists");
                     loginFragment.setEditTextText(R.id.party_name, "");
                     loginFragment.setEditTextHint(R.id.party_pass, "Wrong password");
                     loginFragment.setEditTextText(R.id.party_pass, "");
+                    loginFragment.setButtonEnabled(true);
                 }
 
                 Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });
-
-//        String base_url= getString(R.string.djparty_website);
-//        String join_api_ext= getString(R.string.join_api_ext);
-//        String url= base_url+join_api_ext+"?partyName="+partyName+"&partyPass" +
-//                "="+partyPass+"&guestName="+guestName;
-//        Log.i(TAG, url);
-//
-//        WebView webView= (WebView) findViewById(R.id.webview);
-//        webView.getSettings().setJavaScriptEnabled(true);
-//        webView.loadUrl(url);
-
-//        // Request a string response from the provided URL.
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-////                                    // Display the first 500 characters of the response string.
-////                                    mTextView.setText("Response is: "+ response.substring(0,500));
-//                        Log.i(TAG, "response");
-//                        Log.i(TAG, response);
-//
-//                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-////                                    mTextView.setText("That didn't work!");
-//                Log.i(TAG, error.toString());
-//            }
-//        });
-//        // Add the request to the RequestQueue.
-//        mQueue.add(stringRequest);
-
-//        mParty= mParties.child(partyName);
-//        mGuestList= mParty.child("guestList");
-//        mMyName= guestName;
-//        mMyStuff= mGuestList.child(mMyName);
-//        mMyPlaylist= mMyStuff.child("playlist");
-//        Log.i(TAG, mMyPlaylist.toString());
     }
 }

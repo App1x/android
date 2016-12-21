@@ -1,6 +1,5 @@
 package com.app1x.djparty;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -13,11 +12,7 @@ public class Playlist {
     public Playlist(){}
 
     public Playlist(Map<String, Track> tracks){
-        HashMap<String, Node> convertedMap= new HashMap<>();
-        for (Map.Entry<String, Track> entry : tracks.entrySet()) {
-            convertedMap.put(entry.getKey(), entry.getValue());
-        }
-        this.tracks= (LinkedList) convertedMap;
+        tracks= tracks;
     }
 
 }
