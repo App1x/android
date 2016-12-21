@@ -180,6 +180,15 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         mListener = null;
     }
 
+    public void setEditTextText(int id, String newText) {
+        EditText editText= (EditText) view.findViewById(id);
+        editText.setText(newText);
+    }
+    public void setEditTextHint(int id, String newHint) {
+        EditText editText= (EditText) view.findViewById(id);
+        editText.setHint(newHint);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

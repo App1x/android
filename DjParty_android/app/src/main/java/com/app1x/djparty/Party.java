@@ -13,23 +13,23 @@ public class Party {
     public String nextInLine;
     public String nextUp;
     public Track currentlyPlaying;
-    public GuestList guestList;
+    public Map<String, Node> guestList;
 
     public Party() {
         // Default constructor required for calls to DataSnapshot.getValue(Post.class)
     }
 
-    public Party(String password, String host) {
+    public Party(String password, String hostName) {
         this.password= password;
-        this.host= host;
+        this.host= hostName;
 
-        GuestList newGuestList= new GuestList();
-        newGuestList.put(host, new Node(host));
+        Map<String, Node> newGuestList= new HashMap<>();
+        newGuestList.put(hostName, new Guest(hostName));
         this.guestList= newGuestList;
     }
 
     public Party(String password, String host, String nextInLine, String nextUp, Track
-            currentlyPlaying, GuestList guestList) {
+            currentlyPlaying, Map<String, Node> guestList) {
         this.password = password;
         this.host = host;
         this.nextInLine = nextInLine;

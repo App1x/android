@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -75,6 +76,9 @@ public class MainActivity extends FragmentActivity implements
 
 //    //RequestQueue
 //    RequestQueue mQueue;
+
+    //Fragments
+    LoginFragment loginFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,15 +149,15 @@ public class MainActivity extends FragmentActivity implements
             }
 
             // Create a new Fragment to be placed in the activity layout
-            LoginFragment firstFragment = new LoginFragment();
+            loginFragment = new LoginFragment();
 
             // In case this activity was started with special instructions from an
             // Intent, pass the Intent's extras to the fragment as arguments
-            firstFragment.setArguments(getIntent().getExtras());
+            loginFragment.setArguments(getIntent().getExtras());
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
+                    .add(R.id.fragment_container, loginFragment).commit();
         }
     }
 
@@ -261,19 +265,23 @@ public class MainActivity extends FragmentActivity implements
     }
 
     @Override
-    public void onJoinPressed(String partyName, final String partyPass, final String guestName) {
+    public void onJoinPressed(final String partyName, final String partyPass, final String
+            guestName) {
 
         Log.i("run txn", TAG);
-        MainActivity.mParties.child(partyName).runTransaction(new Transaction.Handler
-                () {
+        MainActivity.mParties.child(partyName).runTransaction(new Transaction.Handler() {
+            boolean gotIn= true;
+
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
                 Party party= mutableData.getValue(Party.class);
                 if (party!=null) {
                     Log.i(TAG, "Party Not Null");
                     Log.i(TAG, party.toString());
-                    if (party.password!=partyPass) {
+                    if (!party.password.equals(partyPass)) {
                         Log.i(TAG, "Wrong Password");
+
+                        gotIn= false;
                         return Transaction.success(mutableData);
                     }
                     mAmPartyHost= party.host==guestName;
@@ -284,7 +292,9 @@ public class MainActivity extends FragmentActivity implements
                 }
 
                 if (party.guestList.get(guestName)==null) {
-                    party.guestList.insertNode(new Guest(guestName), party.guestList.length());
+                    Guest newGuest= new Guest(guestName);
+                    newGuest.insertNode(party.guestList, party.guestList
+                            .size());
                 }
                 Log.i(TAG, party.toString());
 
@@ -297,6 +307,15 @@ public class MainActivity extends FragmentActivity implements
             public void onComplete(DatabaseError databaseError, boolean b,
                                    DataSnapshot dataSnapshot) {
                 // Transaction completed
+                if (gotIn) {
+
+                } else {
+                    loginFragment.setEditTextHint(R.id.party_name, "Party already exists");
+                    loginFragment.setEditTextText(R.id.party_name, "");
+                    loginFragment.setEditTextHint(R.id.party_pass, "Wrong password");
+                    loginFragment.setEditTextText(R.id.party_pass, "");
+                }
+
                 Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });

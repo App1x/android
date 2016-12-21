@@ -14,7 +14,7 @@ public class LinkedList extends HashMap<String, Node> {
 //    public LinkedList(){}
 
 //    public LinkedList(Map<String, Node> nodes) {
-//        this= (LinkedList) nodes;
+//        super(nodes);
 //    }
 //
 //    public Map<String, Node> getNodes() {
